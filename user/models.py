@@ -56,7 +56,7 @@ class User(AbstractBaseUser) :
     password = models.CharField('비밀번호', max_length=255)
     nickname = models.CharField('활동 아이디', max_length=30, unique=True)
     intro = models.CharField('소개글', max_length=500, null=True, blank=True)
-    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/', default='user/DefaultProfileImg.png')
+    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/%Y/%m/%d', default='user/DefaultProfileImage.png')
     subscribe = models.ManyToManyField('self', verbose_name='구독', symmetrical=False, related_name='subscribers', blank=True)
     is_admin = models.BooleanField('관리자 여부', default=False)
 
