@@ -50,5 +50,14 @@ class PostView(APIView):
             return Response({"message":"삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 class PostLikeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def post(self, request, post_id):
-        """post_id를 받아 특정 게시물을 좋아요 합니다."""
+        """like / unlike 기능입니다."""
+        post = Post.objects.get(id=post_id)
+        me = request.user
+        if me in post.like.all():
+            post.like.remove(me)
+            return Response({"message":"unlike"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            post.like.add(me)
+            return Response({"message":"like"}, status=status.HTTP_201_CREATED)
