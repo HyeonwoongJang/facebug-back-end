@@ -3,7 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from post.models import Post, Image
-from post.serializers import ImageSerializer
+from post.serializers import ImageSerializer, PostCreateSerializer
 
 class PostListView(APIView):
     def get(self, request, user_id=None):
@@ -27,8 +27,16 @@ class ImageConvertView(APIView):
 
 
 class PostView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
         """게시물을 생성합니다."""
+        serializer = PostCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            # print(serializer.data)
+            return Response({"message":"게시물 생성 완료"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, post_id):
         """post_id를 받아 특정 게시물을 삭제합니다."""
