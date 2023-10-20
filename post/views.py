@@ -20,8 +20,9 @@ class ImageConvertView(APIView):
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            # print(serializer.data)
             # print(serializer.data['image'])
-            return Response({"message":"이미지 변환 완료", "post_img" : serializer.data['image']}, status=status.HTTP_201_CREATED)
+            return Response({"message":"이미지 변환 완료", "post_img" : serializer.data}, status=status.HTTP_201_CREATED)
         return Response({"message":"이미지를 등록해주세요"}, status=status.HTTP_400_BAD_REQUEST)
 
 
