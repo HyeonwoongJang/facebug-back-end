@@ -14,7 +14,7 @@ class Post(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', on_delete=models.SET_NULL, null=True, related_name='posts')
     title = models.CharField("게시글 제목", max_length=50)
-    like = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='좋아요', related_name='likes', )
+    like = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='좋아요', related_name='likes')
     post_img = models.OneToOneField('post.Image', verbose_name='게시물 이미지', on_delete=models.CASCADE)
     created_at = models.DateTimeField("생성 시각", auto_now_add=True)
 
