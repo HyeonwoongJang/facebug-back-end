@@ -21,8 +21,8 @@ class EmailCheckView(APIView):
     def post(self, request):
         """이메일 중복 검사를 위한 클래스 뷰입니다."""
         email = User.objects.filter(email=request.data['email'])
-        print(request.data['email'])
-        print(email)
+        # print(request.data['email'])
+        # print(email)
         if email : 
             return Response({'message':'해당 이메일은 이미 사용 중입니다.'}, status=status.HTTP_409_CONFLICT)
         else:
@@ -31,6 +31,13 @@ class EmailCheckView(APIView):
 class NicknameCheckView(APIView):
     def post(self, request):
         """닉네임 중복 검사를 위한 클래스 뷰입니다."""
+        nickname = User.objects.filter(nickname=request.data['nickname'])
+        # print(request.data['nickname'])
+        # print(nickname)
+        if nickname :
+            return Response({'message':'해당 닉네임은 이미 사용 중입니다.'}, status=status.HTTP_409_CONFLICT)
+        else:
+            return Response({'message':'해당 닉네임은 사용 가능합니다.'}, status=status.HTTP_200_OK)
 
 class LoginView(TokenObtainPairView):
     def post(self, request):
