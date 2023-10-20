@@ -40,7 +40,14 @@ class PostView(APIView):
     
     def delete(self, request, post_id):
         """post_id를 받아 특정 게시물을 삭제합니다."""
-
+        post = get_object_or_404(Post, id=post_id)
+        if request.user == post.author:
+            post.delete()
+            image = post.post_img
+            image.delete()
+            return Response({"message":"게시물 삭제 완료"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message":"삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 class PostLikeView(APIView):
     def post(self, request, post_id):
