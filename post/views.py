@@ -3,7 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from post.models import Post, Comment
-from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer, CommentSerializer
+from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer, CommentSerializer, CommentListSerializer
 
 class PostListView(APIView):
     def get(self, request, user_id=None):
@@ -94,7 +94,7 @@ class CommentView(APIView):
         """특정 게시물에 작성된 모든 댓글을 불러옵니다."""
         post = Post.objects.get(id=post_id)
         comments = Comment.objects.filter(post=post).order_by('-id')
-        serializer = CommentSerializer(comments, many=True)
+        serializer = CommentListSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def delete(self, request, post_id, comment_id):
