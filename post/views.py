@@ -94,3 +94,14 @@ class CommentView(APIView):
         comments = Comment.objects.filter(post=post).order_by('-id')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def delete(self, request, post_id, comment_id):
+        if request.user:
+            comment = Comment.objects.get(id=comment_id)
+            if request.user == comment.author :
+                comment.delete()
+                return Response({"message":"댓글 삭제 완료"}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({"message":"삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({"message":"로그인이 필요한 요청입니다."}, status=status.HTTP_401_UNAUTHORIZED)
