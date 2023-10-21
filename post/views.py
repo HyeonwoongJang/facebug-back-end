@@ -3,7 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from post.models import Post, Image
-from post.serializers import ImageSerializer, PostCreateSerializer
+from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer
 
 class PostListView(APIView):
     def get(self, request, user_id=None):
@@ -11,6 +11,14 @@ class PostListView(APIView):
         user_id가 없을 경우 모든 계시물을 Response 합니다.
         user_id가 있을 경우 특정 유저의 게시물을 Response 합니다.
         """
+        if user_id is None:
+            all_posts = Post.objects.all().order_by('-created_at')
+            serializer = PostListSerializer(all_posts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            user_posts = Post.objects.filter(author=user_id).order_by('-created_at')
+            serializer = PostListSerializer(user_posts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ImageConvertView(APIView):
     permission_classes = [permissions.IsAuthenticated]
