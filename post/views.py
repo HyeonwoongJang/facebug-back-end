@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from post.models import Post, Image
+from post.models import Post, Comment
 from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer, CommentSerializer
 
 class PostListView(APIView):
@@ -86,3 +86,8 @@ class CommentView(APIView):
         else:
             return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
+    def get(self, request, post_id):
+        post = Post.objects.get(id=post_id)
+        comments = Comment.objects.filter(post=post).order_by('-id')
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
