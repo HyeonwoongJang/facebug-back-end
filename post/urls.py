@@ -7,5 +7,7 @@ urlpatterns = [
     path('post/image-convert/', views.ImageConvertView.as_view(), name='image_convert_view'),
     path('post/', views.PostView.as_view(), name='post_create_view'),
     path('post/<int:post_id>/', views.PostView.as_view(), name='post_delete_view'),
-    path('post/<int:post_id>/like/', views.PostLikeView.as_view(), name='post_like_view')
+    path('post/<int:post_id>/like/', views.PostLikeView.as_view(), name='post_like_view'),
+    path('post/<int:post_id>/comment/', views.CommentView.as_view(), name='comment_view'),
+    path('post/<int:post_id>/comment/<int:comment_id>/', views.CommentView.as_view(), name='comment_view'),
 ]

@@ -3,7 +3,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from post.models import Post, Image
-from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer
+from post.serializers import ImageSerializer, PostCreateSerializer, PostListSerializer, CommentSerializer
 
 class PostListView(APIView):
     def get(self, request, user_id=None):
@@ -69,3 +69,20 @@ class PostLikeView(APIView):
         else:
             post.like.add(me)
             return Response({"message":"like"}, status=status.HTTP_201_CREATED)
+        
+class CommentView(APIView):
+    """
+    comment_id가 없을 경우 댓글을 조회하거나 생성합니다.
+    comment_id가 있을 경우 삭제합니다.
+    """
+    def post(self, request, post_id):
+        serializer = CommentSerializer(data=request.data)
+        print(request.data)
+        if serializer.is_valid():
+            post = Post.objects.get(id=post_id)
+            serializer.save(author=request.user, post=post)
+            print(serializer.data)
+            return Response({"message":"댓글 등록 완료"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from post.models import Image, Post
+from post.models import Image, Post, Comment
 from user.serializers import UserSerializer
 
 
@@ -20,8 +20,8 @@ class PostCreateSerializer(serializers.ModelSerializer):
         fields = ['title', 'post_img']
 
     def create(self, validated_data):
-        print(validated_data)
-        print(validated_data['post_img'])
+        # print(validated_data)
+        # print(validated_data['post_img'])
         post = Post.objects.create(**validated_data)
 
         return post
@@ -55,3 +55,18 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = "__all__"
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    author = serializers.SerializerMethodField()
+    
+    def get_author(self, comment):
+        return comment.author.nickname
+
+    class Meta:
+        model = Comment
+        fields = ['content', 'author']
+
+    def create(self, validated_data):
+        comment = Comment.objects.create(**validated_data)
+        return comment
