@@ -76,16 +76,19 @@ class CommentView(APIView):
     comment_id가 있을 경우 삭제합니다.
     """
     def post(self, request, post_id):
-        serializer = CommentSerializer(data=request.data)
-        print(request.data)
-        if serializer.is_valid():
-            post = Post.objects.get(id=post_id)
-            serializer.save(author=request.user, post=post)
-            print(serializer.data)
-            return Response({"message":"댓글 등록 완료"}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    
+        if request.user :
+            serializer = CommentSerializer(data=request.data)
+            # print(request.data)
+            if serializer.is_valid():
+                post = Post.objects.get(id=post_id)
+                serializer.save(author=request.user, post=post)
+                # print(serializer.data)
+                return Response({"message":"댓글 등록 완료"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else :
+            return Response({"message":"로그인이 필요한 요청입니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        
     def get(self, request, post_id):
         post = Post.objects.get(id=post_id)
         comments = Comment.objects.filter(post=post).order_by('-id')
