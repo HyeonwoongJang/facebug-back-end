@@ -76,6 +76,7 @@ class CommentView(APIView):
     comment_id가 있을 경우 삭제합니다.
     """
     def post(self, request, post_id):
+        """특정 게시물에 댓글을 생성합니다."""
         if request.user :
             serializer = CommentSerializer(data=request.data)
             # print(request.data)
@@ -90,12 +91,14 @@ class CommentView(APIView):
             return Response({"message":"로그인이 필요한 요청입니다."}, status=status.HTTP_401_UNAUTHORIZED)
         
     def get(self, request, post_id):
+        """특정 게시물에 작성된 모든 댓글을 불러옵니다."""
         post = Post.objects.get(id=post_id)
         comments = Comment.objects.filter(post=post).order_by('-id')
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def delete(self, request, post_id, comment_id):
+        """특정 댓글을 삭제합니다."""
         if request.user:
             comment = Comment.objects.get(id=comment_id)
             if request.user == comment.author :
