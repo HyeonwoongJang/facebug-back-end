@@ -29,3 +29,11 @@ class Image(models.Model):
 
     class Meta:
         db_table = 'image'
+
+class Comment(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', related_name='comments', on_delete=models.CASCADE)
+    post = models.ForeignKey('post.Post', verbose_name='게시글', related_name='comments', on_delete=models.CASCADE)
+    content = models.TextField('댓글 내용')
+
+    class Meta:
+        db_table = 'comment'
