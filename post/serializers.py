@@ -45,12 +45,13 @@ class PostListSerializer(serializers.ModelSerializer):
     
     def get_like(self, post):
         who_liked = post.like.all().order_by('-id')
+        print(who_liked)
         users_data = UserSerializer(who_liked, many=True).data
-        user_nicknames = []
+        print(users_data)
+        user_info = []
         for user in users_data :
-            user_nicknames.append(user['nickname'])
-            return user_nicknames
-        return user_nicknames
+            user_info.append([user['id'], user['nickname']])
+        return user_info
 
     class Meta:
         model = Post
@@ -58,15 +59,21 @@ class PostListSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
 
-    author = serializers.SerializerMethodField()
-    
-    def get_author(self, comment):
-        return comment.author.nickname
-
     class Meta:
         model = Comment
-        fields = ['id', 'content', 'author']
+        fields = ['content',]
 
     def create(self, validated_data):
         comment = Comment.objects.create(**validated_data)
         return comment
+
+class CommentListSerializer(serializers.ModelSerializer):
+
+    author_nickname = serializers.SerializerMethodField()
+    
+    def get_author_nickname(self, comment):
+        return comment.author.nickname
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'author', 'author_nickname', 'created_at']
