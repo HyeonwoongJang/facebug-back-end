@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
@@ -46,7 +48,6 @@ class User(AbstractBaseUser) :
     - nickname(필수) : 사용자의 활동 아이디입니다.
         - 다른 사용자의 닉네임과 중복되지 않도록 설정합니다. (Unique)
     - intro : 사용자의 소개글입니다.
-    - profile_img : 사용자의 프로필 이미지입니다.
     - subscribe : 사용자 간 구독(팔로우) 관계입니다.
     - is_admin : 관리자 권한 여부입니다.
         - True 혹은 False를 저장할 수 있으며, 기본값으로 False를 저장하도록 설정합니다.
@@ -56,7 +57,6 @@ class User(AbstractBaseUser) :
     password = models.CharField('비밀번호', max_length=255)
     nickname = models.CharField('활동 아이디', max_length=30, unique=True)
     intro = models.CharField('소개글', max_length=500, null=True, blank=True)
-    profile_img = models.ImageField('프로필 이미지', upload_to='user/profile_img/%Y/%m/%d', default='user/DefaultProfileImage.png')
     subscribe = models.ManyToManyField('self', verbose_name='구독', symmetrical=False, related_name='subscribers', blank=True)
     is_admin = models.BooleanField('관리자 여부', default=False)
 
@@ -81,6 +81,19 @@ class User(AbstractBaseUser) :
     class Meta:
         db_table = 'user'
 
+def image_upload_path(instance, filename):
+    return f'user/{instance.owner.id}/profile_img/{filename}'
 
+class ProfileImage(models.Model):
+    """
+    사용자의 프로필 이미지 모델을 정의하는 클래스입니다.
 
+    - owner : 프로필 사진의 주인입니다.
+    - profile_img : 사용자의 프로필 이미지입니다.
+    """
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', on_delete=models.CASCADE, related_name='profile_img')
+    profile_img = models.ImageField('프로필 이미지', upload_to=image_upload_path)
+
+    class Meta:
+        db_table = 'profile_img'
 
