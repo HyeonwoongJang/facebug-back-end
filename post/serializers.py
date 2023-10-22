@@ -7,7 +7,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = "__all__"
+        fields = ['id', 'image']
 
     def create(self, validated_data):
         image = Image.objects.create(**validated_data)
