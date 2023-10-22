@@ -40,14 +40,15 @@ class PostListSerializer(serializers.ModelSerializer):
         return post.like.count()
 
     def get_image_url(self, post):
-        image_url = post.post_img.image
+        images=post.post_img
+        image_url=images.image
         return str(image_url)
     
     def get_like(self, post):
         who_liked = post.like.all().order_by('-id')
-        print(who_liked)
+        # print(who_liked)
         users_data = UserSerializer(who_liked, many=True).data
-        print(users_data)
+        # print(users_data)
         user_info = []
         for user in users_data :
             user_info.append([user['id'], user['nickname']])
