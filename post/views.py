@@ -24,14 +24,14 @@ class ImageConvertView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
         """이미지를 받아 변환시킵니다."""
-
         serializer = ImageSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=request.user)
             # print(serializer.data)
             # print(serializer.data['image'])
             return Response({"message":"이미지 변환 완료", "post_img" : serializer.data}, status=status.HTTP_201_CREATED)
-        return Response({"message":"이미지를 등록해주세요"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message":"이미지를 등록해주세요"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostView(APIView):
