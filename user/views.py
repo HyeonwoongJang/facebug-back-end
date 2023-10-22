@@ -9,7 +9,8 @@ from rest_framework import status
 class RegisterView(APIView):
     def post(self, request):
         """사용자 정보를 받아 회원가입 합니다."""
-        serializer = UserSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data, context={'profile_img':request.FILES})
+        print(request.FILES)
         if serializer.is_valid():
             serializer.save()
             return Response({'message':'회원가입 성공'}, status=status.HTTP_201_CREATED)

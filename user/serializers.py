@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from user.models import User
+from user.models import User, ProfileImage
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,6 +13,13 @@ class UserSerializer(serializers.ModelSerializer):
         password = user.password
         user.set_password(password)
         user.save()
+
+        profile_img = self.context['profile_img']
+        # print(profile_img)
+
+        for image_data in profile_img.getlist('profile_img'):
+            # print(image_data)
+            ProfileImage.objects.create(owner=user, profile_img=image_data)
         return user
 
 class LoginSerializer(TokenObtainPairSerializer):
