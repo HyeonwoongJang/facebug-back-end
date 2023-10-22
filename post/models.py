@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.conf import settings
 
@@ -12,10 +13,10 @@ class Post(models.Model):
         - 게시물이 작성된 시간을 자동으로 저장하도록 설정합니다.
     """
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', on_delete=models.SET_NULL, null=True, related_name='posts')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', on_delete=models.CASCADE, related_name='posts')
     title = models.CharField("게시글 제목", max_length=50)
     like = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name='좋아요', related_name='likes')
-    post_img = models.OneToOneField('post.Image', verbose_name='게시물 이미지', on_delete=models.CASCADE)
+    post_img = models.ForeignKey('post.Image', verbose_name='작성자', on_delete=models.CASCADE, related_name='post_imgs')
     created_at = models.DateTimeField("생성 시각", auto_now_add=True)
 
     def __str__(self):
@@ -24,17 +25,24 @@ class Post(models.Model):
     class Meta:
         db_table = 'post'
 
+def image_upload_path(instance, filename):
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+    return f'user/{instance.owner.id}/converted_img/{filename}_{timestamp}'
+
 class Image(models.Model):
     """
+    - owner : 이미지 변환을 요청하는 사용자입니다.
     - image : 변환된 이미지의 url입니다.
     - created_at : 변환된 이미지가 생성된 일자 및 시간입니다.
         - 변환된 이미지가 생성된 시간을 자동으로 저장하도록 설정합니다.
     """
-    image = models.ImageField('변환 이미지', upload_to='post/converted_img/%Y/%m/%d')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='작성자', on_delete=models.CASCADE)
+    image = models.ImageField('변환 이미지', upload_to=image_upload_path)
     created_at = models.DateTimeField("생성 시각", auto_now_add=True)
 
     class Meta:
         db_table = 'image'
+
 
 class Comment(models.Model):
     """
