@@ -29,9 +29,7 @@ class LoginSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # print(user.profile_img)
-        # print(user.profile_img.url)
-        
-        token['profile_img'] = user.profile_img.url
+        user_profile_img = ProfileImage.objects.get(owner=user)
+        token['profile_img'] = str(user_profile_img.profile_img)
 
         return token
