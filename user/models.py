@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -34,6 +33,7 @@ class UserManager(BaseUserManager):
         )
 
         user.is_admin = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 
@@ -51,6 +51,8 @@ class User(AbstractBaseUser) :
     - subscribe : 사용자 간 구독(팔로우) 관계입니다.
     - is_admin : 관리자 권한 여부입니다.
         - True 혹은 False를 저장할 수 있으며, 기본값으로 False를 저장하도록 설정합니다.
+    - is_active : 계정 활성화 여부입니다.
+        - True 혹은 False를 저장할 수 있으며, 기본값으로 False를 저장하도록 설정합니다.
     """
 
     email = models.EmailField('이메일', max_length=255, unique=True)
@@ -59,6 +61,7 @@ class User(AbstractBaseUser) :
     intro = models.CharField('소개글', max_length=500, null=True, blank=True)
     subscribe = models.ManyToManyField('self', verbose_name='구독', symmetrical=False, related_name='subscribers', blank=True)
     is_admin = models.BooleanField('관리자 여부', default=False)
+    is_active = models.BooleanField('계정 활성화 여부', default=False)
 
     objects = UserManager()
 
