@@ -141,6 +141,8 @@ MEDIA_URL = "/media/"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DEFAULT_PROFILE_IMAGE = 'user/DefaultProfileImage.jpg'
+
 AUTH_USER_MODEL = 'user.User'
 
 # CORS_ALLOWED_ORIGINS = [
@@ -148,3 +150,11 @@ AUTH_USER_MODEL = 'user.User'
 # ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+EMAIL_HOST = 'smtp.gmail.com' 		 # 메일 호스트 서버
+EMAIL_PORT = 587 			 # SMTP 포트 번호
+EMAIL_HOST_USER = 'hyeonwoongjang01@gmail.com' 	 # 서비스에서 사용할 Gmail
+EMAIL_HOST_PASSWORD = 'thfa jqal svnx qjzc'         # 서비스에서 사용할 Gmail의 password
+# TLS 보안 설정 - SMTP 서버와 통신할 때 TLS(보안) 연결을 사용할지 여부. 보통 587 포트에서 명시적 TLS 연결에 사용됨. 기본값은 False.
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
