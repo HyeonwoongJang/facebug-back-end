@@ -5,6 +5,10 @@ from user.serializers import UserSerializer, LoginSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
 
 class RegisterView(APIView):
     def post(self, request):
@@ -18,6 +22,29 @@ class RegisterView(APIView):
             return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class SendVerificationEmailView(APIView):
+    def post(self, request):
+            
+            user = User.objects.get(email=request.data['email'])
+
+            # 이메일 확인 토큰 생성
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # 이메일에 확인 링크 포함하여 보내기
+            verification_url = f"http://127.0.0.1:8000/verify-email/{uid}/{token}/"
+            # 이메일 전송 코드 작성 및 이메일에 verification_url을 포함하여 보내기
+
+            # 이메일 전송
+            subject = '이메일 확인 링크'
+            message = f'이메일 확인을 완료하려면 다음 링크를 클릭하세요: {verification_url}'
+            from_email = 'hyeonwoongjang01@gmail.com'
+            recipient_list = [user.email]
+
+            send_mail(subject, message, from_email, recipient_list)
+
+            return Response(status = status.HTTP_200_OK)
+    
 class EmailCheckView(APIView):
     def post(self, request):
         """이메일 중복 검사를 위한 클래스 뷰입니다."""
