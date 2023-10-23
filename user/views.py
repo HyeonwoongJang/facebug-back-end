@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 
@@ -45,6 +45,17 @@ class SendVerificationEmailView(APIView):
 
             return Response(status = status.HTTP_200_OK)
     
+class VerifyEmailView(APIView):
+    def get(self, request, uidb64, token):
+        # uidb64와 token을 사용하여 사용자 확인
+        uid = urlsafe_base64_decode(uidb64)
+        user = User.objects.get(id=uid)
+
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+        return Response(status=status.HTTP_200_OK)
+
 class EmailCheckView(APIView):
     def post(self, request):
         """이메일 중복 검사를 위한 클래스 뷰입니다."""
