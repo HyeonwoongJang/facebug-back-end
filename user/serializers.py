@@ -23,17 +23,16 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, validated_data):
-        user = super().create(validated_data)
-        password = user.password
+        # user = super().create(validated_data)
+        password=validated_data.pop('password')
+        user = User(**validated_data)
         user.set_password(password)
         user.save()
 
         if self.context['profile_img']:
             profile_img = self.context['profile_img']
-            # print(profile_img)
-            for image_data in profile_img.getlist('profile_img'):
-                # print(image_data)
-                ProfileImage.objects.create(owner=user, profile_img=image_data)
+            image_data=profile_img.get('profile_img')
+            ProfileImage.objects.create(owner=user, profile_img=image_data)
             return user
         else:
             profile_img = settings.DEFAULT_PROFILE_IMAGE
@@ -64,6 +63,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         refresh = RefreshToken.for_user(user)
         
         user_profile_img = ProfileImage.objects.get(owner=user)
+        token['nickname'] = user.nickname
         token['profile_img'] = str(user_profile_img.profile_img)
         
         return {
