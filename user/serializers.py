@@ -32,8 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(TokenObtainPairSerializer):
     """DRF의 JWT 로그인 방식에 사용되는 TokenObtainPairSerializer를 상속하여 Serializer를 커스터마이징하여 재정의합니다."""
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
 
     def validate(self, request_data):
         print(request_data)
