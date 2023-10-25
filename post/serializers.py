@@ -32,20 +32,25 @@ class PostListSerializer(serializers.ModelSerializer):
 
     author_nickname = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
-    image_url = serializers.SerializerMethodField()
+    post_image_url = serializers.SerializerMethodField()
     like = serializers.SerializerMethodField()
+    content_detail = serializers.SerializerMethodField()
 
     def get_author_nickname(self, post):
         return post.author.nickname
 
     def get_likes_count(self, post):
         return post.like.count()
-
-    def get_image_url(self, post):
+    
+    def get_post_image_url(self, post):
         images = post.post_img
         image_url = images.converted_image
         return str(image_url)
 
+    def get_content_detail(self, post):
+        detail = post.content
+        return detail.result
+    
     def get_like(self, post):
         who_liked = post.like.all().order_by('-id')
         # print(who_liked)
