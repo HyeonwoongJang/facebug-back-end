@@ -113,7 +113,7 @@ class ImageConvertView(APIView):
             converted_data.result = text_dic
             converted_data.save()
 
-            return Response({"message": "이미지 변환 완료", "converted_result": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"message": "이미지 변환 완료", "owner_id": converted_data.owner.id, "owner_nickname" : converted_data.owner.nickname, "converted_result": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"message": "이미지를 등록해주세요"}, status=status.HTTP_400_BAD_REQUEST)
 
