@@ -8,45 +8,34 @@ from rest_framework import status
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail
+from .tasks import send_verification_email
 
 class RegisterView(APIView):
     def post(self, request):
         """사용자 정보를 받아 회원가입 합니다."""
+        
         serializer = UserSerializer(data=request.data, context={'profile_img':request.FILES})
-        print(request.FILES)
+        
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            
+            # 이메일 확인 토큰 생성
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # 이메일에 인증 링크 포함하여 보내기
+            verification_url = f"http://127.0.0.1:8000/verify-email/{uid}/{token}/"
+            
+            send_verification_email.delay(user.id, verification_url, user.email)                        # 'delay' : Celery 작업을 예약하여 나중에 실행되도록 하는 메소드입니다. 'delay' 메소드를 호출하면 작업이 백그라운드에서 비동기적으로 실행됩니다.
+            
             return Response({'message':'회원가입 성공'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-
-class SendVerificationEmailView(APIView):
-    def post(self, request):
-            
-            user = User.objects.get(email=request.data['email'])
-
-            # 이메일 확인 토큰 생성
-            token = default_token_generator.make_token(user)
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-            # 이메일에 확인 링크 포함하여 보내기
-            verification_url = f"http://127.0.0.1:8000/verify-email/{uid}/{token}/"
-            # 이메일 전송 코드 작성 및 이메일에 verification_url을 포함하여 보내기
-
-            # 이메일 전송
-            subject = '이메일 확인 링크'
-            message = f'이메일 확인을 완료하려면 다음 링크를 클릭하세요: {verification_url}'
-            from_email = 'hyeonwoongjang01@gmail.com'
-            recipient_list = [user.email]
-
-            send_mail(subject, message, from_email, recipient_list)
-
-            return Response(status = status.HTTP_200_OK)
-    
 class VerifyEmailView(APIView):
+    """사용자가 받은 이메일에 인증 링크를 눌렀을 때 사용자에게 권한 부여를 진행합니다."""
     def get(self, request, uidb64, token):
+        
         # uidb64와 token을 사용하여 사용자 확인
         uid = urlsafe_base64_decode(uidb64)
         user = User.objects.get(id=uid)
@@ -81,7 +70,7 @@ class NicknameCheckView(APIView):
 class LoginView(TokenObtainPairView):
         """
         사용자 정보를 받아 로그인 합니다.
-        DRF의 JWT 토큰 인증 로그인 방식에 기본 제공된는 클래스 뷰를 커스터마이징하여 재정의합니다.
+        DRF의 JWT 토큰 인증 로그인 방식에 기본 제공되는 클래스 뷰를 커스터마이징하여 재정의합니다.
         """
         serializer_class = LoginSerializer
 
