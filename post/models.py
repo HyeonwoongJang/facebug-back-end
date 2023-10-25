@@ -43,7 +43,9 @@ def converted_image_upload_path(instance, filename):
 class ConvertResult(models.Model):
     """
     - owner : 이미지 변환을 요청하는 사용자입니다.
-    - image : 변환된 이미지의 url입니다.
+    - original_image : 사용자가 변환 요청한 이미지입니다.
+    - converted_image : 변환된 이미지입니다.
+    - result : 표정 분석 결과입니다.
     - created_at : 변환된 이미지가 생성된 일자 및 시간입니다.
         - 변환된 이미지가 생성된 시간을 자동으로 저장하도록 설정합니다.
     """
