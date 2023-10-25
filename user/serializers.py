@@ -12,10 +12,6 @@ from django.contrib.auth.password_validation import validate_password
 class UserSerializer(serializers.ModelSerializer):
     """회원가입 페이지, 회원 정보 수정 페이지에서 사용되는 시리얼라이저입니다."""
 
-    email = serializers.EmailField(required=True, validators=[UniqueValidator])
-
-    nickname = serializers.CharField(required=True, validators=[UniqueValidator])
-
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     
     class Meta:
