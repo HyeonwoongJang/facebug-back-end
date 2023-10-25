@@ -64,6 +64,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['intro'] = user.intro
         
         return {
+            'message': "로그인 성공",
             'access': str(token.access_token),
             'refresh': str(refresh)
         }
