@@ -154,7 +154,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 EMAIL_HOST = 'smtp.gmail.com' 		                # 메일 호스트 서버
 EMAIL_PORT = 587 			                        # SMTP 포트 번호
 EMAIL_HOST_USER = 'hyeonwoongjang01@gmail.com' 	    # 서비스에서 사용할 Gmail
-EMAIL_HOST_PASSWORD = ''         # 서비스에서 사용할 Gmail의 password
+EMAIL_HOST_PASSWORD = ''                            # 서비스에서 사용할 Gmail의 password
 
 EMAIL_USE_TLS = True                                # 사용자의 이메일 서버와의 통신에 TLS(Transport Layer Security)를 사용하면 데이터를 암호화하여 안전한 통신을 보장합니다.
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
