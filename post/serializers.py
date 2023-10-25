@@ -18,7 +18,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['title', 'content', 'post_img']
+        fields = ['id', 'title', 'content', 'post_img']
 
     def create(self, validated_data):
         # print(validated_data)

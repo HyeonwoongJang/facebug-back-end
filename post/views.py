@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from post.models import Post, Comment
+from post.models import Post, Comment, ConvertResult
 from post.serializers import ConvertSerializer, PostCreateSerializer, PostListSerializer, CommentSerializer, CommentListSerializer
 from keras.preprocessing.image import img_to_array
 from keras.models import load_model
@@ -126,8 +126,13 @@ class PostView(APIView):
         serializer = PostCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(author=request.user)
-            # print(serializer.data)
-            return Response({"message": "게시물 생성 완료"}, status=status.HTTP_201_CREATED)
+            
+            data = ConvertResult.objects.get(id=request.data['content'])
+            
+            content = data.result
+            post_img = data.converted_image
+            
+            return Response({"message": "게시물 생성 완료", "post_data" : serializer.data, "content" : content, "post_img" : str(post_img)}, status=status.HTTP_201_CREATED)
         else:
             return Response({"message": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
