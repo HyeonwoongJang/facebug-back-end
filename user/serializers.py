@@ -61,6 +61,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         user_profile_img = ProfileImage.objects.get(owner=user)
         token['nickname'] = user.nickname
         token['profile_img'] = str(user_profile_img.profile_img)
+        token['intro'] = user.intro
         
         return {
             'access': str(token.access_token),
