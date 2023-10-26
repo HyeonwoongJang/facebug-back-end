@@ -197,18 +197,17 @@ CORS_ALLOW_ALL_ORIGINS = True
 EMAIL_HOST = 'smtp.gmail.com' 		                # 메일 호스트 서버
 EMAIL_PORT = 587 			                        # SMTP 포트 번호
 EMAIL_HOST_USER = 'hyeonwoongjang01@gmail.com' 	    # 서비스에서 사용할 Gmail
-# 서비스에서 사용할 Gmail의 password
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = ''                            # 서비스에서 사용할 Gmail의 password
 
-# 사용자의 이메일 서버와의 통신에 TLS(Transport Layer Security)를 사용하면 데이터를 암호화하여 안전한 통신을 보장합니다.
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True                                # 사용자의 이메일 서버와의 통신에 TLS(Transport Layer Security)를 사용하면 데이터를 암호화하여 안전한 통신을 보장합니다.
+
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Celery와 같은 작업 대기열 시스템에서 작업을 비동기적으로 처리하기 위해 활용되는 메시지 브로커입니다.
-CELERY_BROKER_URL = 'amqp://guest@localhost:5672//'
-# 정의한 url은 RabbitMQ 메시지 브로커 서버에 연결하는데 사용되는 URL입니다.
-# Celery 작업의 결과를 저장하는 백엔드 저장소를 설정하는 데 사용되는 환경 변수 또는 설정 옵션입니다. 이 설정은 Celery가 비동기 작업을 처리하고 작업의 결과를 저장하는 방법을 지정합니다.
-CELERY_RESULT_BACKEND = 'rpc://'
-# rpc://로 설정하면 작업 결과가 메시지 브로커에 저장되며 작업 수행자는 해당 결과를 검색합니다.
-# 작업 결과를 설정된 시간(초) 동안 보관합니다.
-CELERY_RESULT_EXPIRES = 3600
+CELERY_BROKER_URL = 'amqp://guest@localhost:5672//' # Celery와 같은 작업 대기열 시스템에서 작업을 비동기적으로 처리하기 위해 활용되는 메시지 브로커입니다.
+
+CELERY_RESULT_BACKEND = 'rpc://'                    # 정의한 url은 RabbitMQ 메시지 브로커 서버에 연결하는데 사용되는 URL입니다.
+                                                    # Celery 작업의 결과를 저장하는 백엔드 저장소를 설정하는 데 사용되는 환경 변수 또는 설정 옵션입니다. 이 설정은 Celery가 비동기 작업을 처리하고 작업의 결과를 저장하는 방법을 지정합니다.
+CELERY_RESULT_EXPIRES = 3600                        # rpc://로 설정하면 작업 결과가 메시지 브로커에 저장되며 작업 수행자는 해당 결과를 검색합니다.
+                                                    # 작업 결과를 설정된 시간(초) 동안 보관합니다.
+
+
