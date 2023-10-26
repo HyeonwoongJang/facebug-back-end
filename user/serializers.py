@@ -6,7 +6,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from user.common_utils import validate_password, is_password_same_as_previous
 from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
+# from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,11 +14,25 @@ class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=True)
     password_confirmation = serializers.CharField(write_only=True) 
-    
+    profile_img = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = "__all__"
         
+    def get_profile_img(self, user):
+        profile_img = ProfileImage.objects.filter(owner=user).first()
+        if profile_img:
+            return profile_img.profile_img.url  # 이미지 URL 반환
+        return settings.DEFAULT_PROFILE_IMAGE   
+
+    # def get_profile_img(self, user):
+    #     profile_img = ProfileImage.objects.get(owner=user)
+    #     if profile_img:
+    #         return str(profile_img.profile_img)
+    #     else:
+    #         profile_img = settings.DEFAULT_PROFILE_IMAGE
+    #     return profile_img
+    
     def validate(self, data):
         password = data.get("password")
         password_confirmation = data.get("password_confirmation")
@@ -48,9 +62,10 @@ class UserSerializer(serializers.ModelSerializer):
         user = super().update(instance, validated_data)
         
         profile_img = self.context["profile_img"]
+        print(profile_img)
         if profile_img:
             image_data = profile_img.get('profile_img')
-            ProfileImage.objects.filter(owner=user).delete()
+            ProfileImage.objects.get(owner=user).delete()
             ProfileImage.objects.create(owner=user, profile_img=image_data)
             return user
         else:
