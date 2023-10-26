@@ -148,8 +148,8 @@ class ImageConvertView(APIView):
                 json_text_dic = json.dumps(text_dic)
                 converted_data.result = json_text_dic
                 converted_data.save()
-                
-                return Response({"message": "이미지 변환 완료", "owner_id": converted_data.owner.id, "owner_nickname" : converted_data.owner.nickname, "converted_result": converted_data.result}, status=status.HTTP_201_CREATED)
+                print(converted_data)
+                return Response({"message": "이미지 변환 완료", "owner_id": converted_data.owner.id, "owner_nickname" : converted_data.owner.nickname, "converted_result": serializer.data}, status=status.HTTP_201_CREATED)
 
             except:
                 return Response({"message": "사람의 얼굴이 아닙니다. ^^;"})
