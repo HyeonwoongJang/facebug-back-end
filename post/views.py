@@ -8,7 +8,31 @@ from keras.preprocessing.image import img_to_array
 from keras.models import load_model
 import numpy as np
 import cv2
+from rest_framework.pagination import CursorPagination
+class CustomCursorPagination(CursorPagination):
+    ordering = '-created_at' 
+    page_size = 10
+    
+    def get_paginated_response(self, request, data):
 
+        headers = {}
+        
+        previous_link = self.get_previous_link()
+        next_link = self.get_next_link()
+        
+        if next_link:
+            headers['Next-Page'] =next_link
+        if previous_link:
+            headers['Previous-Page'] = previous_link 
+        
+        response_data = {
+            "meta": {"code": 200, "message": "OK"},
+            "count": len(self.page),
+            "Previous-Page": previous_link,
+            "Next-Page": next_link,
+            "results": data
+        }
+        return Response(response_data, headers=headers, status=status.HTTP_200_OK)
 
 class PostListView(APIView):
     def get(self, request, user_id=None):
@@ -17,16 +41,24 @@ class PostListView(APIView):
         user_id가 있을 경우 특정 유저의 게시물을 Response 합니다.
         """
         if user_id is None:
-            all_posts = Post.objects.all().order_by('-created_at')
-            serializer = PostListSerializer(all_posts, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            posts = Post.objects.all().order_by('-created_at')
+            # serializer = PostListSerializer(all_posts, many=True)
+            # return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            user_posts = Post.objects.filter(
+            posts = Post.objects.filter(
                 author=user_id).order_by('-created_at')
-            serializer = PostListSerializer(user_posts, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-
+            # serializer = PostListSerializer(user_posts, many=True)
+            # return Response(serializer.data, status=status.HTTP_200_OK)
+        """페이지네이션 구현하겠습니다."""
+        paginator = CustomCursorPagination()
+        page = paginator.paginate_queryset(posts, request)
+        print(f'page:{page}')
+        if page is not None:
+            serializer = PostListSerializer(page, many=True)
+            print(f'serializer: {serializer.data}')
+            return paginator.get_paginated_response(request, serializer.data)
+        serializer = PostListSerializer(posts, many=True)
+        return Response(serializer.data)
 class ImageConvertView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -84,7 +116,7 @@ class ImageConvertView(APIView):
 
             # 감정 정보를 담을 리스트 생성
             text_dic = {}
-
+            
             for (i, (emotion, prob)) in enumerate(zip(EMOTIONS, preds)):
                 # construct the label text
                 text = "{}: {:.2f}%".format(emotion, prob * 100)
