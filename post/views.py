@@ -15,7 +15,7 @@ class CustomCursorPagination(CursorPagination):
     ordering = '-created_at' 
     page_size = 10
     
-    def get_paginated_response(self, request, data):
+    def get_paginated_response(self, data):
 
         headers = {}
         
@@ -58,7 +58,7 @@ class PostListView(APIView):
         if page is not None:
             serializer = PostListSerializer(page, many=True)
             print(f'serializer: {serializer.data}')
-            return paginator.get_paginated_response(request, serializer.data)
+            return paginator.get_paginated_response(serializer.data)
         serializer = PostListSerializer(posts, many=True)
         return Response(serializer.data)
     
