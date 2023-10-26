@@ -4,7 +4,7 @@ from rest_framework import serializers
 from user.models import User, ProfileImage
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from user.common_utils import validate_password, is_password_same_as_previous
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
@@ -12,14 +12,23 @@ from django.contrib.auth.password_validation import validate_password
 class UserSerializer(serializers.ModelSerializer):
     """회원가입 페이지, 회원 정보 수정 페이지에서 사용되는 시리얼라이저입니다."""
 
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password = serializers.CharField(write_only=True, required=True)
+    password_confirmation = serializers.CharField(write_only=True) 
     
     class Meta:
         model = User
         fields = "__all__"
-
+        
+    def validate(self, data):
+        password = data.get("password")
+        password_confirmation = data.get("password_confirmation")
+        if password and password_confirmation:
+            validate_password(password, password_confirmation)
+        return data
+    
     def create(self, validated_data):
         # user = super().create(validated_data)
+        validated_data.pop("password_confirmation")
         password=validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
@@ -34,6 +43,45 @@ class UserSerializer(serializers.ModelSerializer):
             profile_img = settings.DEFAULT_PROFILE_IMAGE
             ProfileImage.objects.create(owner=user, profile_img=profile_img)
             return user
+        
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
+        
+        profile_img = self.context["profile_img"]
+        if profile_img:
+            image_data = profile_img.get('profile_img')
+            ProfileImage.objects.filter(owner=user).delete()
+            ProfileImage.objects.create(owner=user, profile_img=image_data)
+            return user
+        else:
+            ProfileImage.objects.create(owner=user, profile_img=settings.DEFAULT_PROFILE_IMAGE)
+            return user
+class PasswordSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    new_password_confirm = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ("old_password","new_password","new_password_confirm")
+
+    def validate(self, data):
+        user_id = self.context.get("user_id")
+        old_password = data.get("old_password")
+        new_password = data.get("new_password")
+        is_password_same_as_previous(old_password, new_password, user_id)
+        new_password_confirm = data.get("new_password_confirm")
+        validate_password(new_password, new_password_confirm)
+        return data
+
+    def update(self, instance, validated_data):
+        validated_data.pop("old_password")
+        validated_data.pop("new_password_confirm")
+        new_password = validated_data.pop("new_password", None)
+        if new_password:
+            instance.set_password(new_password)
+            instance.save()
+        return instance
 
 class LoginSerializer(TokenObtainPairSerializer):
     """DRF의 JWT 로그인 방식에 사용되는 TokenObtainPairSerializer를 상속하여 Serializer를 커스터마이징하여 재정의합니다."""

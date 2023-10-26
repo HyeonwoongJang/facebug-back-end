@@ -1,9 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from user.models import User
-from user.serializers import UserSerializer, LoginSerializer
+from user.serializers import UserSerializer, LoginSerializer,PasswordSerializer
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,permissions
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -75,11 +76,47 @@ class LoginView(TokenObtainPairView):
         serializer_class = LoginSerializer
 
 class UserInfoView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+        
+    def get_user(self, user_id):
+        return get_object_or_404(User, id=user_id)
+
     def get(self, request, user_id):
         """사용자의 회원 정보를 보여줍니다."""
-    
-    def put(self, request, user_id):
+        serializer = UserSerializer(self.get_user(user_id))
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, user_id): 
         """사용자의 정보를 받아 회원 정보를 수정합니다."""
-    
-    def patch(self, request, user_id):
-        """사용자의 비밀번호를 수정합니다."""
+        serializer = UserSerializer(
+            self.get_user(user_id),
+            data=request.data,
+            context={"profile_img": request.FILES, "user_id": user_id},
+            partial=True,
+        )
+        if serializer.is_valid():
+            serializer.save()
+            print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {"message": "회원정보를 수정할 수 없습니다.", "errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+    def put(self, request, user_id):
+        """사용자의 비밀번호만을 수정합니다."""
+        serializer = PasswordSerializer(
+            self.get_user(user_id),
+            context={"user_id": user_id},
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "비밀번호를 수정 하였습니다."},status=status.HTTP_200_OK,)
+        else:
+            return Response(
+                {"message": "비밀번호를 수정 할 수 없습니다.", "errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
