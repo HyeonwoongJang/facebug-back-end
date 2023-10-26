@@ -117,6 +117,6 @@ class UserInfoView(APIView):
             return Response({"message": "비밀번호를 수정 하였습니다."},status=status.HTTP_200_OK,)
         else:
             return Response(
-                {"message": "비밀번호를 수정 할 수 없습니다.", "errors": serializer.errors},
+                {"message": "비밀번호를 수정 할 수 없습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
