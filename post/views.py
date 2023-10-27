@@ -11,6 +11,8 @@ import cv2
 from rest_framework.pagination import CursorPagination
 import json
 
+from user.models import User
+
 class CustomCursorPagination(CursorPagination):
     ordering = '-created_at' 
     page_size = 10
@@ -54,10 +56,8 @@ class PostListView(APIView):
         """페이지네이션 구현하겠습니다."""
         paginator = CustomCursorPagination()
         page = paginator.paginate_queryset(posts, request)
-        print(f'page:{page}')
         if page is not None:
             serializer = PostListSerializer(page, many=True)
-            print(f'serializer: {serializer.data}')
             return paginator.get_paginated_response(serializer.data)
         serializer = PostListSerializer(posts, many=True)
         return Response(serializer.data)
@@ -190,7 +190,14 @@ class PostView(APIView):
         else:
             return Response({"message": "삭제 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
-
+class LikedPostView(APIView):
+    """내가 좋아요 한 게시물 보기"""
+    def get(self,request,user_id):
+        user = User.objects.get(id = user_id)
+        liked_posts = user.likes.all()
+        serializer = PostListSerializer(liked_posts, many=True)
+        return Response({"message":"내가 좋아요한 게시물", "data" : serializer.data}, status=status.HTTP_200_OK)
+    
 class PostLikeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
